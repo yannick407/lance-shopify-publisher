@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lancé — Publie ta boutique Shopify</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #EEF0E9; --bg-panel: #E4E7DD; --ink: #16202A; --ink-soft: #4B5A5A;
+    --teal: #0E6B5C; --teal-deep: #0A4F45; --stamp: #C1402B; --line: #C6CDBE; --white: #FBFBF8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--ink); font-family: 'IBM Plex Sans', sans-serif; line-height: 1.5; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 48px 24px 96px; }
+  h1, h2, .display { font-family: 'Space Grotesk', sans-serif; letter-spacing: -0.01em; }
+  .mono { font-family: 'IBM Plex Mono', monospace; }
+
+  header.top { display: flex; align-items: center; gap: 8px; margin-bottom: 40px; }
+  header.top .dot { width: 9px; height: 9px; background: var(--stamp); border-radius: 50%; }
+  header.top span.logo { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 19px; }
+
+  .panel { background: var(--white); border: 1px solid var(--line); border-radius: 6px; padding: 26px; margin-bottom: 24px; }
+  .panel h2 { font-size: 17px; margin-bottom: 14px; }
+
+  label { display: block; font-size: 13px; color: var(--ink-soft); margin-bottom: 6px; font-family: 'IBM Plex Mono', monospace; }
+  input[type=text], input[type=password] {
+    width: 100%; padding: 11px 12px; border: 1px solid var(--line); border-radius: 4px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 14px; margin-bottom: 16px; background: var(--bg);
+  }
+  input:focus { outline: 2px solid var(--teal); outline-offset: 1px; }
+
+  button {
+    font-family: 'IBM Plex Mono', monospace; font-size: 13.5px; background: var(--ink); color: var(--white);
+    border: none; padding: 12px 20px; border-radius: 4px; cursor: pointer;
+  }
+  button:hover { background: var(--teal-deep); }
+  button:disabled { background: #A9B0A5; cursor: not-allowed; }
+  button.secondary { background: transparent; color: var(--ink); border: 1px solid var(--ink); }
+  button.secondary:hover { background: var(--ink); color: var(--white); }
+  button.danger { background: var(--stamp); }
+  button.danger:hover { background: #9c3220; }
+
+  .hint { font-size: 12.5px; color: var(--ink-soft); margin-top: -8px; margin-bottom: 16px; }
+
+  .result-group { margin-top: 18px; }
+  .result-group h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--teal-deep); margin-bottom: 8px; font-family: 'IBM Plex Mono', monospace; }
+  .item {
+    display: flex; align-items: center; gap: 10px; padding: 9px 4px; border-bottom: 1px solid #EFF1EA; font-size: 14px;
+  }
+  .item:last-child { border-bottom: none; }
+  .item input[type=checkbox] { width: 16px; height: 16px; margin: 0; }
+  .empty-state { font-size: 14px; color: var(--ink-soft); padding: 6px 4px; }
+
+  .status-line { font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; padding: 4px 0; }
+  .status-line.ok { color: var(--teal-deep); }
+  .status-line.err { color: var(--stamp); }
+
+  .theme-warning {
+    background: rgba(193,64,43,0.08); border: 1px solid rgba(193,64,43,0.3); border-radius: 4px;
+    padding: 12px 14px; font-size: 13px; color: #7a2c1e; margin-bottom: 14px;
+  }
+
+  .actions { display: flex; gap: 10px; margin-top: 18px; }
+  #scan-status, #global-error { font-family: 'IBM Plex Mono', monospace; font-size: 13px; margin-top: 10px; }
+  #global-error { color: var(--stamp); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <span class="dot"></span>
+    <span class="logo">Lancé</span>
+  </header>
+
+  <div class="panel">
+    <h2>Connexion à ta boutique</h2>
+    <label for="shop">Domaine de la boutique</label>
+    <input type="text" id="shop" placeholder="ma-boutique.myshopify.com">
+    <label for="clientId">ID client (Client ID)</label>
+    <input type="text" id="clientId" placeholder="d607a135a1d55a71b8a0dc478171f682">
+    <label for="clientSecret">Secret client (Client secret)</label>
+    <input type="password" id="clientSecret" placeholder="shpss_xxxxxxxxxxxx">
+    <p class="hint">Trouvables dans Dev Dashboard &gt; ton app &gt; Paramètres &gt; Identifiants. Rien n'est stocké — utilisés uniquement pour cette session.</p>
+    <button id="scan-btn">Scanner la boutique</button>
+    <div id="scan-status"></div>
+    <div id="global-error"></div>
+  </div>
+
+  <div id="results" style="display:none;">
+
+    <div class="panel">
+      <h2>Produits &amp; collections non publiés</h2>
+      <div id="publish-list"></div>
+      <div class="actions">
+        <button id="publish-btn">Publier la sélection</button>
+      </div>
+      <div id="publish-status"></div>
+    </div>
+
+    <div class="panel" id="theme-panel" style="display:none;">
+      <h2>Thème</h2>
+      <div id="theme-body"></div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  let currentScan = null;
+
+  $('scan-btn').addEventListener('click', async () => {
+    const shop = $('shop').value.trim();
+    const clientId = $('clientId').value.trim();
+    const clientSecret = $('clientSecret').value.trim();
+    $('global-error').textContent = '';
+    if (!shop || !clientId || !clientSecret) {
+      $('global-error').textContent = 'Renseigne le domaine, le Client ID et le Secret.';
+      return;
+    }
+    $('scan-btn').disabled = true;
+    $('scan-status').textContent = 'Scan en cours...';
+    $('results').style.display = 'none';
+
+    try {
+      const res = await fetch('/.netlify/functions/scan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ shop, clientId, clientSecret }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Erreur inconnue');
+      currentScan = data;
+      renderResults(data);
+      $('scan-status').textContent = 'Scan terminé.';
+    } catch (err) {
+      $('global-error').textContent = err.message;
+      $('scan-status').textContent = '';
+    } finally {
+      $('scan-btn').disabled = false;
+    }
+  });
+
+  function renderResults(data) {
+    $('results').style.display = 'block';
+    const list = $('publish-list');
+    list.innerHTML = '';
+
+    const groups = [
+      { key: 'products', label: 'Produits' },
+      { key: 'collections', label: 'Collections' },
+    ];
+
+    let anyItem = false;
+
+    groups.forEach(({ key, label }) => {
+      const items = data[key];
+      const group = document.createElement('div');
+      group.className = 'result-group';
+      const h3 = document.createElement('h3');
+      h3.textContent = label + ' (' + items.length + ' à publier)';
+      group.appendChild(h3);
+
+      if (items.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'empty-state';
+        empty.textContent = 'Tout est déjà publié.';
+        group.appendChild(empty);
+      } else {
+        anyItem = true;
+        items.forEach((item) => {
+          const row = document.createElement('div');
+          row.className = 'item';
+          row.innerHTML = `
+            <input type="checkbox" checked data-id="${item.id}">
+            <span>${item.title}</span>
+          `;
+          group.appendChild(row);
+        });
+      }
+      list.appendChild(group);
+    });
+
+    $('publish-btn').disabled = !anyItem;
+
+    // Thème
+    const themePanel = $('theme-panel');
+    const themeBody = $('theme-body');
+    themeBody.innerHTML = '';
+
+    if (data.theme.live) {
+      const liveLine = document.createElement('p');
+      liveLine.innerHTML = `Thème actuellement en ligne : <strong>${data.theme.live.name}</strong>`;
+      liveLine.style.marginBottom = '14px';
+      themeBody.appendChild(liveLine);
+    }
+
+    if (data.theme.drafts.length > 0) {
+      themePanel.style.display = 'block';
+      const warning = document.createElement('div');
+      warning.className = 'theme-warning';
+      warning.textContent = "Publier un thème remplace immédiatement l'apparence du site pour tous les visiteurs. Vérifie l'aperçu avant de valider.";
+      themeBody.appendChild(warning);
+
+      data.theme.drafts.forEach((theme) => {
+        const row = document.createElement('div');
+        row.style.display = 'flex';
+        row.style.justifyContent = 'space-between';
+        row.style.alignItems = 'center';
+        row.style.padding = '8px 0';
+        row.innerHTML = `<span>${theme.name}</span>`;
+        const btn = document.createElement('button');
+        btn.className = 'danger';
+        btn.textContent = 'Publier ce thème';
+        btn.addEventListener('click', () => publishTheme(theme.id, theme.name));
+        row.appendChild(btn);
+        themeBody.appendChild(row);
+      });
+    } else {
+      themePanel.style.display = data.theme.live ? 'block' : 'none';
+    }
+  }
+
+  $('publish-btn').addEventListener('click', async () => {
+    const shop = $('shop').value.trim();
+    const clientId = $('clientId').value.trim();
+    const clientSecret = $('clientSecret').value.trim();
+    const checked = Array.from(document.querySelectorAll('#publish-list input[type=checkbox]:checked'));
+    const resourceIds = checked.map((c) => c.dataset.id);
+
+    if (resourceIds.length === 0) return;
+
+    $('publish-btn').disabled = true;
+    $('publish-status').textContent = 'Publication en cours...';
+
+    try {
+      const res = await fetch('/.netlify/functions/publish', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ shop, clientId, clientSecret, resourceIds, publicationId: currentScan.publication.id }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Erreur inconnue');
+
+      const okCount = data.results.filter((r) => r.ok).length;
+      const failCount = data.results.length - okCount;
+      $('publish-status').innerHTML =
+        `<div class="status-line ok">${okCount} ressource(s) publiée(s).</div>` +
+        (failCount ? `<div class="status-line err">${failCount} échec(s).</div>` : '');
+    } catch (err) {
+      $('publish-status').innerHTML = `<div class="status-line err">${err.message}</div>`;
+    } finally {
+      $('publish-btn').disabled = false;
+    }
+  });
+
+  async function publishTheme(themeId, themeName) {
+    const shop = $('shop').value.trim();
+    const clientId = $('clientId').value.trim();
+    const clientSecret = $('clientSecret').value.trim();
+    const confirmed = confirm(`Publier "${themeName}" maintenant ? Ceci remplace immédiatement le site visible par tes clients.`);
+    if (!confirmed) return;
+
+    try {
+      const res = await fetch('/.netlify/functions/publish-theme', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ shop, clientId, clientSecret, themeId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Erreur inconnue');
+      alert(`Thème "${data.theme.name}" publié.`);
+    } catch (err) {
+      alert('Erreur: ' + err.message);
+    }
+  }
+</script>
+</body>
+</html>
