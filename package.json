@@ -1,0 +1,16 @@
+{
+  "name": "lance-app",
+  "version": "1.0.0",
+  "description": "Interface web de Lancé — publie automatiquement les ressources Shopify non publiées.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "license": "UNLICENSED"
+}
